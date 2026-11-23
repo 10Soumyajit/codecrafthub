@@ -183,6 +183,34 @@ def get_course(course_id):
     except StorageError as error:
         app.logger.exception("Course storage error")
         return jsonify(error=str(error)), 500
+    
+    
+@app.get("/api/courses/stats")
+def get_course_stats():
+    """Return the total number of courses and counts for each status."""
+    try:
+        courses = load_courses()
+
+        # Include every allowed status, even when its count is zero.
+        counts_by_status = {
+            "Not Started": 0,
+            "In Progress": 0,
+            "Completed": 0,
+        }
+
+        for course in courses:
+            status = course.get("status")
+            if status in counts_by_status:
+                counts_by_status[status] += 1
+
+        return jsonify({
+            "total_courses": len(courses),
+            "courses_by_status": counts_by_status,
+        }), 200
+
+    except StorageError as error:
+        app.logger.exception("Course storage error")
+        return jsonify(error=str(error)), 500
 
 
 @app.put("/api/courses/<int:course_id>")
