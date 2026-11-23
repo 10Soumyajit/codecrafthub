@@ -4,7 +4,7 @@ import re
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
@@ -117,6 +117,70 @@ def get_json_body():
     if not isinstance(data, dict):
         return None, "The request body must be a JSON object."
     return data, None
+
+
+def validate_partial_update(data):
+    """Validate fields supplied to a partial course update."""
+    unexpected_fields = data.keys() - (REQUIRED_FIELDS)
+    if unexpected_fields:
+        return f"These fields cannot be provided: {', '.join(sorted(unexpected_fields))}."
+
+    if "name" in data and (not isinstance(data["name"], str) or not data["name"].strip()):
+        return "name must be a non-empty string."
+
+    if "description" in data and (
+        not isinstance(data["description"], str) or not data["description"].strip()
+    ):
+        return "description must be a non-empty string."
+
+    if "status" in data and data["status"] not in VALID_STATUSES:
+        return 'status must be "Not Started", "In Progress", or "Completed".'
+
+    if "target_date" in data:
+        target_date = data["target_date"]
+        if not isinstance(target_date, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", target_date):
+            return "target_date must use YYYY-MM-DD format."
+        try:
+            date.fromisoformat(target_date)
+        except ValueError:
+            return "target_date must be a valid calendar date in YYYY-MM-DD format."
+
+    return None
+
+
+@app.get("/")
+def serve_frontend():
+    """Serve the browser application from the same origin as the API."""
+    return send_from_directory(app.root_path, "index.html")
+
+
+@app.after_request
+def add_cors_headers(response):
+    """Allow local frontend servers to call the API during development."""
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    return response
+
+
+@app.route("/api/courses", methods=["OPTIONS"])
+@app.route("/api/courses/<int:course_id>", methods=["OPTIONS"])
+def handle_options(course_id=None):
+    return "", 204
+
+
+@app.errorhandler(404)
+def not_found(error):
+    if request.path.startswith("/api/"):
+        return jsonify(error="Resource not found."), 404
+    return jsonify(error="Page not found."), 404
+
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    if request.path.startswith("/api/"):
+        return jsonify(error="Method not allowed."), 405
+    return jsonify(error="Method not allowed."), 405
 
 
 @app.post("/api/courses")
@@ -238,6 +302,39 @@ def update_course(course_id):
             "target_date": data["target_date"],
             "status": data["status"],
         })
+
+        save_courses(courses)
+        return jsonify(course), 200
+
+    except StorageError as error:
+        app.logger.exception("Course storage error")
+        return jsonify(error=str(error)), 500
+
+
+@app.patch("/api/courses/<int:course_id>")
+def patch_course(course_id):
+    """Update only the editable fields supplied in the request."""
+    data, body_error = get_json_body()
+    if body_error:
+        return jsonify(error=body_error), 400
+
+    if not data:
+        return jsonify(error="At least one course field must be provided."), 400
+
+    validation_error = validate_partial_update(data)
+    if validation_error:
+        return jsonify(error=validation_error), 400
+
+    try:
+        courses = load_courses()
+        course = next((item for item in courses if item.get("id") == course_id), None)
+
+        if course is None:
+            return jsonify(error="Course not found."), 404
+
+        for field in REQUIRED_FIELDS:
+            if field in data:
+                course[field] = data[field].strip() if field in {"name", "description"} else data[field]
 
         save_courses(courses)
         return jsonify(course), 200

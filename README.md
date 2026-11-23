@@ -1,264 +1,170 @@
 # CodeCraftHub
 
-CodeCraftHub is a beginner-friendly Flask REST API for tracking courses you want to learn. It lets you add, view, update, and delete courses. Course data is saved in a local JSON file, so no database setup is needed.
+<div align="center">
 
-This project is intended for learning and local use. It does not include authentication or user accounts.
+**A beginner-friendly course tracker built with Flask and a polished browser interface**
 
-## Features
+[Quick Start](#-quick-start) · [Try the Frontend](#-try-the-web-interface) · [Explore the API](#-api-reference) · [Run Tests](#-run-the-tests) · [Troubleshooting](#-troubleshooting)
 
-- Create, view, update, and delete courses.
-- Save course data in `courses.json`.
-- Automatically create `courses.json` if it does not exist.
-- Automatically assign each course an integer ID, starting at `1`.
-- Record a creation timestamp for each course.
-- Validate required fields, dates, and course statuses.
-- Return JSON responses and HTTP status codes.
+</div>
 
-Each course has these fields:
+CodeCraftHub lets you create, view, update, and delete learning courses. Course data is stored in `courses.json`, making it easy to learn REST API concepts without setting up a database.
 
-|
- Field 
-|
- Description 
-|
-|
----
-|
----
-|
-|
-`id`
-|
- Automatically assigned integer ID 
-|
-|
-`name`
-|
- Required course name 
-|
-|
-`description`
-|
- Required course description 
-|
-|
-`target_date`
-|
- Required date in 
-`YYYY-MM-DD`
- format 
-|
-|
-`status`
-|
- Required: 
-`Not Started`
-, 
-`In Progress`
-, or 
-`Completed`
-|
-|
-`created_at`
-|
- Automatically generated timestamp 
-|
+> [!NOTE]
+> This project is designed for local learning and development. It does not include authentication, user accounts, or production database support.
 
-## Project structure
+## Table of Contents
 
-```text
-codecrafthub/
-├── app.py             # Flask application and API endpoints
-├── courses.json       # Course data; created automatically if missing
-├── requirements.txt   # Python dependencies (optional)
-└── README.md          # Project instructions
+- [Quick Start](#-quick-start)
+- [What You Will Find](#-what-you-will-find)
+- [Project Structure](#-project-structure)
+- [Try the Web Interface](#-try-the-web-interface)
+- [API Reference](#-api-reference)
+- [Run the Tests](#-run-the-tests)
+- [Troubleshooting](#-troubleshooting)
+- [Learning Checklist](#-learning-checklist)
+
+## Quick Start
+
+### 1. Enter the project folder
+
+```powershell
+cd "e:\Python Course\codecrafthub"
 ```
 
-The JSON file contains an array of course objects. For example:
+### 2. Create and activate a virtual environment
 
-```json
-[
-  {
-    "id": 1,
-    "name": "Flask REST APIs",
-    "description": "Learn how to build APIs with Flask.",
-    "target_date": "2026-12-15",
-    "status": "Not Started",
-    "created_at": "2026-11-23T12:00:00+00:00"
-  }
-]
+<details>
+<summary><strong>Windows PowerShell</strong></summary>
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
 ```
 
-## Installation
+</details>
 
-### 1. Install Python
+<details>
+<summary><strong>Windows Command Prompt</strong></summary>
 
-Install Python 3 from [python.org](https://www.python.org/downloads/). During installation on Windows, select **Add Python to PATH** if that option is shown.
-
-Check that Python is available:
-
-```bash
-python --version
+```bat
+py -m venv .venv
+.venv\Scripts\activate.bat
 ```
 
-Some systems use `python3` instead:
+</details>
 
-```bash
-python3 --version
-```
-
-### 2. Open the project folder
-
-In a terminal, move into the folder containing `app.py`:
-
-```bash
-cd path/to/codecrafthub
-```
-
-### 3. Create and activate a virtual environment
-
-A virtual environment keeps this project's Python packages separate from other projects.
-
-**macOS / Linux:**
+<details>
+<summary><strong>macOS or Linux</strong></summary>
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-**Windows Command Prompt:**
+</details>
 
-```bat
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-**Windows PowerShell:**
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-```
-
-### 4. Install Flask
+### 3. Install dependencies
 
 ```bash
-pip install Flask
+python -m pip install -r requirements.txt
 ```
 
-If the project includes `requirements.txt`, install its dependencies with:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 5. Check the data file
-
-The application creates `courses.json` automatically when it starts. You can also create it yourself with this initial content:
-
-```json
-[]
-```
-
-The file should be in the same directory as `app.py`.
-
-## Run the application
-
-Start the Flask server from the project directory:
+### 4. Start CodeCraftHub
 
 ```bash
 python app.py
 ```
 
-If your system uses `python3`, run:
+When startup completes, open:
 
-```bash
-python3 app.py
-```
+- **Web interface:** <http://127.0.0.1:5000/>
+- **Course API:** <http://127.0.0.1:5000/api/courses>
+- **Course statistics:** <http://127.0.0.1:5000/api/courses/stats>
 
-The API will be available at:
+Stop the server with `Ctrl+C`.
+
+## What You Will Find
+
+| Feature | Description |
+|---|---|
+| Course creation | Add a name, description, target date, and status |
+| Course browsing | View every saved course or retrieve one by ID |
+| Full updates | Replace all editable fields with `PUT` |
+| Partial updates | Change one field with `PATCH` |
+| Course deletion | Remove a course from the local JSON store |
+| Statistics | Count courses by status |
+| Browser interface | Add, edit, and delete courses without external tools |
+| Validation | Check missing fields, date formats, and status values |
+
+### Course fields
+
+| Field | Example | Rules |
+|---|---|---|
+| `id` | `1` | Generated by the server |
+| `name` | `Flask REST APIs` | Non-empty string |
+| `description` | `Learn to build APIs with Flask` | Non-empty string |
+| `target_date` | `2026-12-15` | Real date in `YYYY-MM-DD` format |
+| `status` | `In Progress` | `Not Started`, `In Progress`, or `Completed` |
+| `created_at` | `2026-11-23T12:00:00+00:00` | Generated by the server |
+
+## Project Structure
 
 ```text
-http://127.0.0.1:5000
+codecrafthub/
+├── app.py          # Flask server, API routes, validation, and JSON storage
+├── index.html      # Browser-based course management interface
+├── courses.json    # Local course data; starts as []
+├── test_app.py     # Automated API and integration tests
+├── requirements.txt  # Flask dependencies
+├── README.md       # Setup, usage, and troubleshooting guide
+└── .venv/          # Local Python virtual environment
 ```
 
-Leave the server running while you send requests from a second terminal. Stop it with `Ctrl+C`.
+The JSON file is created automatically when the application starts. A new data file begins like this:
 
-> The app runs with Flask debug mode enabled in this beginner project. Use it only for local development—not for a public production server.
+```json
+[]
+```
 
-## API endpoints
+## Try the Web Interface
 
-The API accepts and returns JSON. For the examples below, `curl` is used to send requests from a terminal.
+1. Start the server.
+2. Open <http://127.0.0.1:5000/>.
+3. Complete the **Add New Course** form.
+4. Select **Add Course**.
+5. Use **Edit** or **Remove** beside a course in the list.
 
-|
- Method 
-|
- Endpoint 
-|
- Purpose 
-|
- Typical success response 
-|
-|
----
-|
----
-|
----
-|
----
-|
-|
-`POST`
-|
-`/api/courses`
-|
- Add a course 
-|
-`201 Created`
-|
-|
-`GET`
-|
-`/api/courses`
-|
- Get all courses 
-|
-`200 OK`
-|
-|
-`GET`
-|
-`/api/courses/<id>`
-|
- Get one course 
-|
-`200 OK`
-|
-|
-`PUT`
-|
-`/api/courses/<id>`
-|
- Replace a course's editable fields 
-|
-`200 OK`
-|
-|
-`DELETE`
-|
-`/api/courses/<id>`
-|
- Delete a course 
-|
-`204 No Content`
-|
+The frontend and API use the same Flask server, so no separate frontend server is required.
 
-Use the course ID in place of `<id>`, for example `/api/courses/1`. The API's collection URL is `/api/courses` (without a trailing slash).
+<details>
+<summary><strong>Try the API from a browser or terminal</strong></summary>
+
+You can open these read-only URLs directly:
+
+- <http://127.0.0.1:5000/api/courses>
+- <http://127.0.0.1:5000/api/courses/stats>
+
+For create, update, and delete operations, use `curl` or an API client such as Insomnia or Postman.
+
+</details>
+
+## API Reference
+
+| Method | Endpoint | Purpose | Success |
+|---|---|---|---|
+| `POST` | `/api/courses` | Create a course | `201 Created` |
+| `GET` | `/api/courses` | List all courses | `200 OK` |
+| `GET` | `/api/courses/<id>` | Get one course | `200 OK` |
+| `GET` | `/api/courses/stats` | Count courses by status | `200 OK` |
+| `PUT` | `/api/courses/<id>` | Replace all editable fields | `200 OK` |
+| `PATCH` | `/api/courses/<id>` | Update supplied fields only | `200 OK` |
+| `DELETE` | `/api/courses/<id>` | Delete a course | `204 No Content` |
+
+> [!IMPORTANT]
+> `GET /api/courses/stats` is a collection route. Keep it before or separate from ID routes when adding endpoints.
 
 ### Create a course
-
-Send all required fields. Do not include `id` or `created_at`; the server generates them.
 
 ```bash
 curl -i -X POST http://127.0.0.1:5000/api/courses \
@@ -271,7 +177,7 @@ curl -i -X POST http://127.0.0.1:5000/api/courses \
   }'
 ```
 
-A successful response has status `201 Created` and looks like this. The ID and timestamp depend on your data and when you send the request.
+Example response:
 
 ```json
 {
@@ -290,7 +196,7 @@ A successful response has status `201 Created` and looks like this. The ID and t
 curl -i http://127.0.0.1:5000/api/courses
 ```
 
-A successful response has status `200 OK` and returns a JSON array. If there are no courses, the response is:
+An empty list is returned as:
 
 ```json
 []
@@ -302,11 +208,28 @@ A successful response has status `200 OK` and returns a JSON array. If there are
 curl -i http://127.0.0.1:5000/api/courses/1
 ```
 
-A successful response has status `200 OK` and returns the matching course object. If that ID does not exist, the API returns `404 Not Found`.
+### Get course statistics
 
-### Update a course
+```bash
+curl -i http://127.0.0.1:5000/api/courses/stats
+```
 
-`PUT` replaces the course's editable fields. Include **all four required fields** in the request, even if you are changing only one. The original `id` and `created_at` are preserved.
+Example response:
+
+```json
+{
+  "total_courses": 3,
+  "courses_by_status": {
+    "Not Started": 1,
+    "In Progress": 1,
+    "Completed": 1
+  }
+}
+```
+
+### Replace a course with `PUT`
+
+Include all four editable fields:
 
 ```bash
 curl -i -X PUT http://127.0.0.1:5000/api/courses/1 \
@@ -319,7 +242,19 @@ curl -i -X PUT http://127.0.0.1:5000/api/courses/1 \
   }'
 ```
 
-A successful response has status `200 OK` and returns the updated course.
+The server preserves the original `id` and `created_at`.
+
+### Update part of a course with `PATCH`
+
+Only the fields included in the request are changed:
+
+```bash
+curl -i -X PATCH http://127.0.0.1:5000/api/courses/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "Completed"
+  }'
+```
 
 ### Delete a course
 
@@ -327,120 +262,175 @@ A successful response has status `200 OK` and returns the updated course.
 curl -i -X DELETE http://127.0.0.1:5000/api/courses/1
 ```
 
-A successful deletion returns `204 No Content` with an empty response body. Deleting an ID that does not exist returns `404 Not Found`.
+A successful deletion returns `204 No Content` with an empty response body.
 
-## Error responses and validation
+## PowerShell Examples
 
-The API returns a JSON object with an `error` message when it detects a request or storage problem.
+PowerShell aliases `curl` to `Invoke-WebRequest`, so use `Invoke-RestMethod` or `curl.exe`.
 
-|
- Situation 
-|
- HTTP status 
-|
-|
----
-|
----:
-|
-|
- Missing required fields or invalid values 
-|
-`400 Bad Request`
-|
-|
- Course ID does not exist 
-|
-`404 Not Found`
-|
-|
- JSON file cannot be read or written 
-|
-`500 Internal Server Error`
-|
-
-Required fields are `name`, `description`, `target_date`, and `status`. Dates must be valid calendar dates in `YYYY-MM-DD` format. Allowed statuses are exactly `Not Started`, `In Progress`, and `Completed`.
-
-Example invalid status request:
-
-```bash
-curl -i -X POST http://127.0.0.1:5000/api/courses \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Example course",
-    "description": "Testing invalid status handling.",
-    "target_date": "2026-12-15",
-    "status": "Paused"
-  }'
+```powershell
+Invoke-RestMethod -Method Get -Uri "http://127.0.0.1:5000/api/courses"
 ```
 
-This returns `400 Bad Request` with an error explaining the allowed status values.
+Create a course:
 
-## Testing the API
+```powershell
+$body = @{
+  name = "Flask REST APIs"
+  description = "Learn how to build APIs with Flask."
+  target_date = "2026-12-15"
+  status = "Not Started"
+} | ConvertTo-Json
 
-You can test the endpoints manually with the `curl` examples above. A useful first test sequence is:
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "http://127.0.0.1:5000/api/courses" `
+  -ContentType "application/json" `
+  -Body $body
+```
+
+## Validation and Errors
+
+| Situation | Status | Example response |
+|---|---|---|
+| Missing or invalid fields | `400 Bad Request` | `{"error":"Missing required fields: description, name."}` |
+| Invalid JSON body | `400 Bad Request` | `{"error":"Request body must contain valid JSON."}` |
+| Course not found | `404 Not Found` | `{"error":"Course not found."}` |
+| Unknown API resource | `404 Not Found` | `{"error":"Resource not found."}` |
+| Invalid HTTP method | `405 Method Not Allowed` | `{"error":"Method not allowed."}` |
+| JSON file read/write problem | `500 Internal Server Error` | `{"error":"courses.json contains invalid JSON."}` |
+
+Allowed status values:
+
+```text
+Not Started
+In Progress
+Completed
+```
+
+Dates must be valid and use exactly `YYYY-MM-DD` format. For example, `2026-02-30` is rejected.
+
+## Run the Tests
+
+The test suite uses Flask's test client and an isolated temporary JSON file:
+
+```bash
+python -m unittest -v
+```
+
+It checks:
+
+- Frontend delivery
+- Course creation and retrieval
+- Full and partial updates
+- Deletion and missing IDs
+- Status statistics
+- Request validation
+- Invalid JSON storage
+- CORS and OPTIONS responses
+
+## First-Time Learning Walkthrough
+
+<details open>
+<summary><strong>Exercise 1: Create and retrieve</strong></summary>
 
 1. Start the server.
-2. Create a course with `POST`.
-3. List courses with `GET /api/courses`.
-4. Get the new course by its ID.
-5. Update it with `PUT`.
-6. Delete it with `DELETE`.
-7. Try getting it again and confirm that you receive `404 Not Found`.
+2. Send a `POST` request to create a course.
+3. Open `/api/courses` and find the created course.
+4. Copy its `id`.
 
-To make the first created course use ID `1`, start with an empty `courses.json` containing `[]`. **This removes existing course data**, so only reset the file if you are comfortable doing that.
+</details>
 
-**macOS / Linux:**
+<details>
+<summary><strong>Exercise 2: Update and partial update</strong></summary>
 
-```bash
-printf '[]\n' > courses.json
-```
+1. Use `PUT` with all four editable fields.
+2. Use `PATCH` with only `{"status":"Completed"}`.
+3. Retrieve the course and verify `id` and `created_at` did not change.
 
-**Windows Command Prompt:**
+</details>
 
-```bat
-echo []> courses.json
-```
+<details>
+<summary><strong>Exercise 3: Delete and verify</strong></summary>
+
+1. Send `DELETE` for the course ID.
+2. Retrieve `/api/courses/<id>` again.
+3. Confirm the API returns `404 Not Found`.
+
+</details>
 
 ## Troubleshooting
 
-### `curl: (7) Failed to connect`
+### The server does not start
 
-The Flask server may not be running, or it may be using a different address. Start it with `python app.py` and use `http://127.0.0.1:5000`.
-
-### `python` or `pip` is not recognized
-
-Try `python3` instead of `python`, or `pip3` instead of `pip`. Also check that Python was added to your system's PATH.
-
-### Flask cannot be imported
-
-Activate your virtual environment, then install Flask:
+Confirm that Flask is installed and the virtual environment is active:
 
 ```bash
-pip install Flask
+python -m pip install -r requirements.txt
+python app.py
 ```
 
-### The API returns `400 Bad Request`
+If `python` is unavailable, try `py app.py` on Windows or `python3 app.py` on macOS/Linux.
 
-Check that:
+### `curl: Failed to connect`
 
-- The request body is valid JSON.
-- The request includes all required fields.
+Make sure the Flask terminal is still running and open <http://127.0.0.1:5000/>.
+
+### PowerShell reports that `curl` arguments are invalid
+
+PowerShell may treat `curl` as `Invoke-WebRequest`. Use `curl.exe` or `Invoke-RestMethod`, as shown in [PowerShell Examples](#powershell-examples).
+
+### The frontend cannot display courses
+
+Open the browser developer console and confirm:
+
+- The page is loaded from `http://127.0.0.1:5000/`.
+- `/api/courses` returns JSON.
+- The Flask server is still running.
+
+### `400 Bad Request`
+
+Check:
+
+- The request uses a valid JSON body.
+- `POST` and `PUT` include all required fields.
 - `target_date` is a real date in `YYYY-MM-DD` format.
-- `status` exactly matches one of the three allowed values.
-- The `Content-Type: application/json` header is included.
+- `status` is one of the three accepted values.
+- The `Content-Type: application/json` header is present.
 
-### The API returns `404 Not Found`
+### `404 Not Found`
 
-Check that the course ID exists and that the URL includes the correct ID, such as `/api/courses/1`.
+Confirm that the course ID exists and that the URL uses `/api/courses/<id>`.
 
-### The API returns `500 Internal Server Error`
+### `500 Internal Server Error`
 
-Check the terminal where Flask is running for the error details. The app may not have permission to read or write `courses.json`, or the file may contain invalid JSON. If you do not need the existing data, you can reset the file to `[]`.
+Review the Flask terminal output. If `courses.json` contains invalid JSON or cannot be read/written, repair or reset the file:
 
-## Notes for learners
+```json
+[]
+```
 
-- `GET` reads data, `POST` creates data, `PUT` updates data, and `DELETE` removes data.
-- Each endpoint returns an HTTP status code to describe the result.
-- This project stores data in a JSON file for simplicity. It is intended for learning and small local projects; it does not provide database features such as safe handling of many simultaneous writes.
-- The API has no authentication or user management. Do not expose it publicly with private data.
+> [!CAUTION]
+> Resetting `courses.json` to `[]` removes all saved courses.
+
+## Learning Checklist
+
+- [ ] Started the Flask server
+- [ ] Opened the browser interface
+- [ ] Created a course
+- [ ] Retrieved all courses
+- [ ] Retrieved one course by ID
+- [ ] Updated a course with `PUT`
+- [ ] Updated one field with `PATCH`
+- [ ] Deleted a course
+- [ ] Viewed course statistics
+- [ ] Ran the automated tests
+- [ ] Reset or recovered `courses.json` correctly
+
+---
+
+<div align="center">
+
+**Happy building with Flask!**
+
+</div>
